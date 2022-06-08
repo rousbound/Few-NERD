@@ -10,11 +10,12 @@ from torch import autograd, optim, nn
 from torch.autograd import Variable
 from torch.nn import functional as F
 # from pytorch_pretrained_bert import BertAdam
-from transformers import AdamW, get_linear_schedule_with_warmup
+from transformers import AdamW, get_linear_schedule_with_warmup, BertTokenizer
 from torch.nn.parallel import DistributedDataParallel as DDP
 
 from .viterbi import ViterbiDecoder
 
+tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 
 def get_abstract_transitions(train_fname, use_sampled_data=True):
     """
@@ -401,8 +402,8 @@ class FewShotNERFramework:
                             query[k] = query[k].cuda()
                     label = label.cuda()
 
-                print("Support:", support)
-                print("Query:", query)
+                print("Support:", tokenizer.decode(support))
+                print("Query:", tokenizer.decode(query))
                 logits, pred = model(support, query)
                 print("Logits:", logits)
                 print("Pred:", pred)
