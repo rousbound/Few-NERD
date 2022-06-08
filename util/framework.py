@@ -401,6 +401,8 @@ class FewShotNERFramework:
                             query[k] = query[k].cuda()
                     label = label.cuda()
 
+                print("Support:", support)
+                print("Query:", query)
                 logits, pred = model(support, query)
                 print("Logits:", logits)
                 print("Pred:", pred)
