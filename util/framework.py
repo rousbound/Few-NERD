@@ -392,9 +392,14 @@ class FewShotNERFramework:
         correct_cnt = 0
 
         it = 0
+        labels = ['0', 'art-broadcastprogram', 'art-film', 'art-music', 'art-other', 'art-painting', 'art-writtenart', 'building-airport', 'building-hospital', 'building-hotel', 'building-library', 'building-other', 'building-restaurant', 'building-sportsfacility', 'building-theater', 'event-attack/battle/war/militaryconflict', 'event-disaster', 'event-election', 'event-other', 'event-protest', 'event-sportsevent', 'location-GPE', 'location-bodiesofwater', 'location-island', 'location-mountain', 'location-other', 'location-park', 'location-road/railway/highway/transit', 'organization-company', 'organization-education', 'organization-government/governmentagency', 'organization-media/newspaper', 'organization-other', 'organization-politicalparty', 'organization-religion', 'organization-showorganization', 'organization-sportsleague', 'organization-sportsteam', 'other-astronomything', 'other-award', 'other-biologything', 'other-chemicalthing', 'other-currency', 'other-disease', 'other-educationaldegree', 'other-god', 'other-language', 'other-law', 'other-livingthing', 'other-medical', 'person-actor', 'person-artist/author', 'person-athlete', 'person-director', 'person-other', 'person-politician', 'person-scholar', 'person-soldier', 'product-airplane', 'product-car', 'product-food', 'product-game', 'product-other', 'product-ship', 'product-software', 'product-train', 'product-weapon']
+
+        #labels = ['art-broadcastprogram', 'art-film', 'art-music', 'art-other', 'art-painting', 'art-writtenart', 'building-airport', 'building-hospital', 'building-hotel', 'building-library', 'building-other', 'building-restaurant', 'building-sportsfacility', 'building-theater', 'event-attack/battle/war/militaryconflict', 'event-disaster', 'event-election', 'event-other', 'event-protest', 'event-sportsevent', 'location-bodiesofwater', 'location-GPE', 'location-island', 'location-mountain', 'location-other', 'location-park', 'location-road/railway/highway/transit', 'O', 'organization-company', 'organization-education', 'organization-government/governmentagency', 'organization-media/newspaper', 'organization-other', 'organization-politicalparty', 'organization-religion', 'organization-showorganization', 'organization-sportsleague', 'organization-sportsteam', 'other-astronomything', 'other-award', 'other-biologything', 'other-chemicalthing', 'other-currency', 'other-disease', 'other-educationaldegree', 'other-god', 'other-language', 'other-law', 'other-livingthing', 'other-medical', 'person-actor', 'person-artist/author', 'person-athlete', 'person-director', 'person-other', 'person-politician', 'person-scholar', 'person-soldier', 'product-airplane', 'product-car', 'product-food', 'product-game', 'product-other', 'product-ship', 'product-software', 'product-train', 'product-weapon']
         while it + 1 < train_iter:
             for _, (support, query) in enumerate(self.train_data_loader):
                 label = torch.cat(query['label'], 0)
+                print("LABEL:", label)
+                print("QUERY:", query)
                 if torch.cuda.is_available():
                     for k in support:
                         if k != 'label' and k != 'sentence_num':
@@ -402,10 +407,31 @@ class FewShotNERFramework:
                             query[k] = query[k].cuda()
                     label = label.cuda()
 
-                print("Support:", tokenizer.decode(support))
-                print("Query:", tokenizer.decode(query))
+                print("debug: ", support.keys())
+                print("Len batch support:", len(support['word']))
+                print("Len batch labels:", len(support['label']))
+                # print("batch support word:", support['word'])
+                # print("batch labels:", support['label'])
+                # support_words = list(map(lambda x : x.replace(" ",""), tokenizer.batch_decode(support['word'][0])))
+                support_words = tokenizer.batch_decode(support['word'][0], skip_special_tokens=True)
+                support_labels = list(map(lambda x : labels[x] if x > 0 else "0", support['label'][0]))
+                print("")
+                print("Len support:", len(support['word'][0]), " len labels:", len(support['label'][0]))
+                print("Len support2:", len(support_words), " len labels:", len(support_labels))
+                # print("Support labels:", )
+                # print("Support words:", " ".join(support_words))
+                print("Labels indexes:", support['label'][0])
+                print("Support words:", support_words)
+                print("Support words/labels", [x+":::"+y for x,y in zip(support_words, support_labels)])
+                # print("Support labels:", support['label'][0])
+                # print("")
+                # print("Query words:", tokenizer.batch_decode(query['word']))
+                # print("")
+                # print("Query masks:", tokenizer.batch_decode(query['mask']))
+                # print("")
                 logits, pred = model(support, query)
-                print("Logits:", logits)
+                break
+                # print("Logits:", logits)
                 print("Pred:", pred)
                 assert logits.shape[0] == label.shape[0], print(logits.shape, label.shape)
                 loss = model.loss(logits, label) / float(grad_iter)
