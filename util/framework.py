@@ -431,8 +431,8 @@ class FewShotNERFramework:
                     print(el)
                 logits, pred = model(support, query)
                 print("Pred:", pred)
+                print("Logits:", logits)
                 return
-                print("Pred:", pred)
                 assert logits.shape[0] == label.shape[0], print(logits.shape, label.shape)
                 loss = model.loss(logits, label) / float(grad_iter)
                 tmp_pred_cnt, tmp_label_cnt, correct = model.metrics_by_entity(pred, label)
