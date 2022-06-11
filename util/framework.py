@@ -429,9 +429,9 @@ class FewShotNERFramework:
                 print("Support words/labels:")
                 for el in support_words_plus_labels:
                     print(el)
-                break
                 logits, pred = model(support, query)
-                # print("Logits:", logits)
+                print("Pred:", pred)
+                return
                 print("Pred:", pred)
                 assert logits.shape[0] == label.shape[0], print(logits.shape, label.shape)
                 loss = model.loss(logits, label) / float(grad_iter)
