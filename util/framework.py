@@ -418,22 +418,13 @@ class FewShotNERFramework:
                             query[k] = query[k].cuda()
                     label = label.cuda()
 
-                print("debug: ", support.keys())
-                print("Len batch support:", len(support['word']))
-                print("Len batch labels:", len(support['label']))
 
-                print("Support label:", support['label'][0])
                 support_words = tokenizer.batch_decode(support['word'][0], skip_special_tokens=True)
                 # 'label2tag': [{0: 'O', 1: 'other-disease', 2: 'other-law', 3: 'organization-other', 4: 'product-food', 5: 'product-ship'}]
                 label2tag = query['label2tag'][0]
                 label2tag[-1] = 'O'
                 support_labels_indices = support['label'][0].tolist()
                 support_labels = smap(support_labels_indices, label2tag) #list(map(lambda x : label2tag[x] , support_labels_indices))
-                print("")
-                print("Len support:", len(support['word'][0]), " len labels:", len(support['label'][0]))
-                print("Len support2:", len(support_words), " len labels:", len(support_labels))
-                print("Labels indexes:", support['label'][0])
-                print("Support words:", support_words)
                 support_words_plus_labels = [x+":::"+y for x,y in zip(support_words[1:], support_labels)]
                 print("Support words/labels:")
                 for el in support_words_plus_labels:
