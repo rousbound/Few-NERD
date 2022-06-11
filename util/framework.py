@@ -19,7 +19,7 @@ tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 
 DEBUG = True
 
-printlog = print if DEBUG else lambda x: x 
+printlog = print if DEBUG else lambda *args, **kwargs: None
 
 def get_abstract_transitions(train_fname, use_sampled_data=True):
     """
