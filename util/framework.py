@@ -17,6 +17,10 @@ from .viterbi import ViterbiDecoder
 
 tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 
+DEBUG = True
+
+printlog = print if DEBUG else lambda x: x 
+
 def get_abstract_transitions(train_fname, use_sampled_data=True):
     """
     Compute abstract transitions on the training dataset for StructShot
@@ -99,6 +103,8 @@ class FewShotNERModel(nn.Module):
         return self.cost(logits.view(-1, N), label.view(-1))
     
     def __delete_ignore_index(self, pred, label):
+        "ignora o '-1'"
+        "[0,4,-1,-1,2,-1,-1,3,0] --> [0,4,2,3,0]"
         pred = pred[label != self.ignore_index]
         label = label[label != self.ignore_index]
         assert pred.shape[0] == label.shape[0]
@@ -409,8 +415,8 @@ class FewShotNERFramework:
         while it + 1 < train_iter:
             for _, (support, query) in enumerate(self.train_data_loader):
                 label = torch.cat(query['label'], 0)
-                print("LABEL:", label)
-                print("QUERY:", query)
+                printlog("LABEL:", label)
+                printlog("QUERY:", query)
                 if torch.cuda.is_available():
                     for k in support:
                         if k != 'label' and k != 'sentence_num':
@@ -426,12 +432,12 @@ class FewShotNERFramework:
                 support_labels_indices = support['label'][0].tolist()
                 support_labels = smap(support_labels_indices, label2tag) #list(map(lambda x : label2tag[x] , support_labels_indices))
                 support_words_plus_labels = [x+":::"+y for x,y in zip(support_words[1:], support_labels)]
-                print("Support words/labels:")
+                printlog("Support words/labels:")
                 for el in support_words_plus_labels:
-                    print(el)
+                    printlog(el)
                 logits, pred = model(support, query)
-                print("Pred:", pred)
-                print("Logits:", logits)
+                printlog("Pred:", pred)
+                printlog("Logits:", logits)
                 return
                 assert logits.shape[0] == label.shape[0], print(logits.shape, label.shape)
                 loss = model.loss(logits, label) / float(grad_iter)
