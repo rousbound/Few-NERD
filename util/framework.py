@@ -435,10 +435,11 @@ class FewShotNERFramework:
                 printlog("Support words/labels:")
                 for el in support_words_plus_labels:
                     printlog(el)
+                if DEBUG:
+                    return
                 logits, pred = model(support, query)
                 printlog("Pred:", pred)
                 printlog("Logits:", logits)
-                return
                 assert logits.shape[0] == label.shape[0], print(logits.shape, label.shape)
                 loss = model.loss(logits, label) / float(grad_iter)
                 tmp_pred_cnt, tmp_label_cnt, correct = model.metrics_by_entity(pred, label)
