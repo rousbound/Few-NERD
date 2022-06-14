@@ -19,7 +19,7 @@ from .viterbi import ViterbiDecoder
 
 DEBUG = True
 
-printlog = print if DEBUG else lambda *args, **kwargs: None
+printlog = print #if DEBUG else lambda *args, **kwargs: None
 
 def get_abstract_transitions(train_fname, use_sampled_data=True):
     """
