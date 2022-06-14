@@ -12,10 +12,10 @@ from torch.nn import functional as F
 # from pytorch_pretrained_bert import BertAdam
 from transformers import AdamW, get_linear_schedule_with_warmup, BertTokenizer
 from torch.nn.parallel import DistributedDataParallel as DDP
+from transformers import GPT2Tokenizer
 
 from .viterbi import ViterbiDecoder
 
-tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 
 DEBUG = True
 
@@ -292,7 +292,7 @@ class FewShotNERModel(nn.Module):
 
 class FewShotNERFramework:
 
-    def __init__(self, train_data_loader, val_data_loader, test_data_loader, viterbi=False, N=None, train_fname=None, tau=0.05, use_sampled_data=True):
+    def __init__(self, train_data_loader, val_data_loader, test_data_loader, viterbi=False, N=None, train_fname=None, tau=0.05, use_sampled_data=True, tokenizer='bert-base-uncased'):
         '''
         train_data_loader: DataLoader for training.
         val_data_loader: DataLoader for validating.
@@ -302,6 +302,10 @@ class FewShotNERFramework:
         self.val_data_loader = val_data_loader
         self.test_data_loader = test_data_loader
         self.viterbi = viterbi
+        if tokenizer == 'bert-base-uncased':
+            self.tokenizer = BertTokenizer.from_pretrained(tokenizer)
+        elif tokenize == "gpt2":
+            self.tokenizer = GPT2Tokenizer.from_pretrained(tokenizer)
         if viterbi:
             abstract_transitions = get_abstract_transitions(train_fname, use_sampled_data=use_sampled_data)
             self.viterbi_decoder = ViterbiDecoder(N+2, abstract_transitions, tau)
@@ -425,7 +429,7 @@ class FewShotNERFramework:
                     label = label.cuda()
 
 
-                support_words = tokenizer.batch_decode(support['word'][0], skip_special_tokens=True)
+                support_words = self.tokenizer.batch_decode(support['word'][0], skip_special_tokens=True)
                 # 'label2tag': [{0: 'O', 1: 'other-disease', 2: 'other-law', 3: 'organization-other', 4: 'product-food', 5: 'product-ship'}]
                 label2tag = query['label2tag'][0]
                 label2tag[-1] = 'O'
