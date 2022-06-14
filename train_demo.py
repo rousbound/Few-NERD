@@ -101,10 +101,11 @@ def main():
 
     set_seed(opt.seed)
     print('loading model and tokenizer...')
-    pretrain_ckpt = opt.pretrain_ckpt or 'bert-base-uncased'
+    model_name = 'gpt2'
+    pretrain_ckpt = opt.pretrain_ckpt or model
     word_encoder = BERTWordEncoder(
             pretrain_ckpt)
-    tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+    tokenizer = BertTokenizer.from_pretrained(model_name)
 
     print('loading data...')
     if not opt.use_sampled_data:
