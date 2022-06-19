@@ -133,7 +133,7 @@ def main():
             N=N, K=K, Q=Q, batch_size=batch_size, max_length=max_length, ignore_index=opt.ignore_index, use_sampled_data=opt.use_sampled_data)
 
     for x,y in train_data_loader:
-        print(x,y)
+        print("X:",x,"Y:",y)
 
         
     prefix = '-'.join([model_name, opt.mode, str(N), str(K), 'seed'+str(opt.seed)])
